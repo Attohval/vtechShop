@@ -1,6 +1,48 @@
 (function () {
   "use strict";
 
+  // Function to generate SVG product placeholder images
+  function generateProductImage(productId, width = 680, height = 520) {
+    const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2", "#F8B739", "#52C9A4"];
+    const colorIndex = (productId * 7) % colors.length;
+    const bgColor = colors[colorIndex];
+    const textColor = "#FFFFFF";
+    
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>
+      <defs>
+        <linearGradient id='grad${productId}' x1='0%' y1='0%' x2='100%' y2='100%'>
+          <stop offset='0%' style='stop-color:${bgColor};stop-opacity:1' />
+          <stop offset='100%' style='stop-color:${shadeColor(bgColor, -20)};stop-opacity:1' />
+        </linearGradient>
+      </defs>
+      <rect width='100%' height='100%' fill='url(#grad${productId})'/>
+      <text x='50%' y='45%' font-size='48' font-weight='bold' text-anchor='middle' dominant-baseline='middle' fill='${textColor}' font-family='Arial, sans-serif' opacity='0.9'>📦</text>
+      <text x='50%' y='70%' font-size='24' text-anchor='middle' dominant-baseline='middle' fill='${textColor}' font-family='Arial, sans-serif' opacity='0.8'>Product ${productId}</text>
+    </svg>`;
+    
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+  }
+
+  function shadeColor(col, percent) {
+    let R = parseInt(col.substring(1, 3), 16);
+    let G = parseInt(col.substring(3, 5), 16);
+    let B = parseInt(col.substring(5, 7), 16);
+    
+    R = parseInt(R * (100 + percent) / 100);
+    G = parseInt(G * (100 + percent) / 100);
+    B = parseInt(B * (100 + percent) / 100);
+    
+    R = (R < 255) ? R : 255;
+    G = (G < 255) ? G : 255;
+    B = (B < 255) ? B : 255;
+    
+    const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
+    const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
+    const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
+    
+    return "#" + RR + GG + BB;
+  }
+
   const categoryNames = [
     ["Vehicles", "fa-car", ["Cars", "Buses", "Motorcycles", "Trucks", "Spare Parts", "Boats", "Heavy Equipment", "Rentals", "Auto Services", "Tyres"]],
     ["Property", "fa-house-chimney", ["Apartments", "Houses", "Land", "Commercial", "Short Lets", "New Builds", "Hostels", "Warehouses", "Agents", "Valuation"]],
@@ -66,8 +108,8 @@
       sellerId: seller.id,
       seller: seller.name,
       sellerVerified: seller.verified,
-      image: `https://picsum.photos/seed/VtectShop-product-${i}/680/520`,
-      gallery: [1, 2, 3, 4, 5].map(n => `https://picsum.photos/seed/VtectShop-product-${i}-${n}/900/700`),
+      image: generateProductImage(i, 680, 520),
+      gallery: [1, 2, 3, 4, 5].map(n => generateProductImage(i * 10 + n, 900, 700)),
       price: base,
       oldPrice: discount ? Math.round(base * (1 + discount / 100)) : 0,
       discount,
